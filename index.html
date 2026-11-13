@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>X HUB | Phantom Ultimate Master</title>
+    <style>
+        :root {
+            --bg-main: #000000;
+            --card-bg: #111111;
+            --accent-red: #ff1e4d;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; user-select: none; -webkit-user-select: none; }
+        body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 70px; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+
+        .container { max-width: 440px; margin: 0 auto; padding: 10px; }
+        .pane { display: none; }
+        .pane.active { display: block; }
+
+        .banner {
+            background: #181818; border: 1px solid var(--border-color); border-radius: 12px; padding: 12px;
+            margin-bottom: 10px; display: flex; align-items: center; gap: 12px;
+        }
+        .banner-logo { width: 45px; height: 65px; background: #000; border: 1px solid #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #fff; font-weight: 900; }
+        .banner-info h2 { font-size: 0.95rem; font-weight: 900; color: #fff; }
+        .banner-info p { font-size: 0.65rem; color: #00ff88; margin-top: 2px; font-weight: bold; }
+
+        .card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 12px; margin-bottom: 10px; position: relative;
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .card-title { font-size: 0.8rem; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 6px; }
+        
+        .box-input {
+            background: #080808; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+            padding: 8px; color: #fff; font-family: monospace; font-size: 0.75rem; width: 100%; outline: none;
+            user-select: text; -webkit-user-select: text; text-align: center; margin-bottom: 8px;
+        }
+
+        .copy-box {
+            background: #050505; border: 1.5px solid var(--accent-red); border-radius: 8px; padding: 8px; margin-bottom: 8px; text-align: center;
+        }
+        .copy-textarea {
+            width: 100%; height: 50px; background: #000; color: #00ff88; border: 1px solid #333; border-radius: 4px;
+            padding: 4px; font-family: monospace; font-size: 0.65rem; outline: none; resize: none; text-align: center;
+            user-select: text; -webkit-user-select: text;
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #ff1e4d 0%, #b30024 100%);
+            border: none; border-radius: 8px; padding: 10px; width: 100%; text-align: center;
+            cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #fff; margin-bottom: 8px;
+        }
+        .btn-action:active { opacity: 0.8; }
+
+        .network-selector { display: flex; gap: 8px; margin-bottom: 8px; }
+        .net-btn {
+            flex: 1; background: #1a1a1a; border: 1px solid var(--border-color); border-radius: 6px;
+            padding: 8px; color: var(--text-muted); font-size: 0.7rem; font-weight: bold; cursor: pointer; text-align: center;
+        }
+        .net-btn.active { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
+
+        .hitbox-wrap { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+        
+        .char-box {
+            width: 100px; height: 160px; background: #050505; border: 1px solid var(--border-color);
+            border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .char-svg { width: 70px; height: 140px; pointer-events: none; }
+
+        .target-box {
+            position: absolute; width: 20px; height: 20px; left: 40px; top: 15px;
+            background: repeating-linear-gradient(45deg, rgba(255,30,77,0.5), rgba(255,30,77,0.5) 3px, rgba(10,10,10,0.7) 3px, rgba(10,10,10,0.7) 6px);
+            border: 1.5px solid var(--accent-red); box-shadow: 0 0 8px var(--accent-red);
+            pointer-events: none; transition: top 0.05s linear;
+        }
+
+        .slider-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 160px; }
+        
+        .track-area {
+            width: 44px; height: 140px; background: rgba(255,255,255,0.05); border-radius: 22px;
+            position: relative; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; touch-action: none; border: 1px solid rgba(255,255,255,0.15);
+        }
+        .track-line { width: 6px; height: 120px; background: #222; border-radius: 3px; position: relative; }
+        .track-fill { position: absolute; bottom: 0; width: 100%; height: 100%; background: var(--accent-red); border-radius: 3px; }
+        .track-thumb {
+            position: absolute; left: 50%; top: 0%; transform: translate(-50%, -50%);
+            width: 26px; height: 26px; background: var(--accent-red); border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-red); border: 2px solid #fff; pointer-events: none;
+        }
+
+        .labels-side { width: 80px; font-size: 0.65rem; color: var(--text-muted); display: flex; flex-direction: column; justify-content: space-between; height: 150px; }
+        .labels-side div { display: flex; justify-content: space-between; }
+        .labels-side div.active { color: #fff; font-weight: bold; text-shadow: 0 0 5px #fff; }
+        .big-percent { font-size: 2rem; font-weight: 900; color: var(--accent-red); text-align: right; }
+
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: #111; border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-around; padding: 6px 0; z-index: 1000;
+        }
+        .nav-btn {
+            background: none; border: none; color: var(--text-muted); font-size: 0.6rem; font-weight: bold;
+            display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer;
+        }
+        .nav-btn.active { color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="banner">
+            <div class="banner-logo">X HUB</div>
+            <div class="banner-info">
+                <h2>PHANTOM MASTER</h2>
+                <p>🟢 Ultimate Stable Edition</p>
+            </div>
+        </div>
+
+        <!-- PANE 1 -->
+        <div id="p-home" class="pane active">
+            <div class="card">
+                <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; font-weight: bold;">เลือกเครือข่ายเชื่อมต่อในเกม:</div>
+                <div class="network-selector">
+                    <button class="net-btn active" id="btn-mobile" onclick="setNetwork('mobile')">📶 เน็ตมือถือ (70ms+)</button>
+                    <button class="net-btn" id="btn-wifi" onclick="setNetwork('wifi')">🛜 Wi-Fi บ้าน (70ms+)</button>
+                </div>
+
+                <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; font-weight: bold;">คีย์ใช้งานของคุณ:</div>
+                <input type="text" id="user-key" class="box-input" value="pldk-9ef1-fdbd" oninput="updateLink()">
+                
+                <div class="copy-box">
+                    <div style="font-size: 0.65rem; color: #fff; margin-bottom: 4px;">📋 แตะกล่องด้านล่างเพื่อเลือกและก๊อปปี้ลิงก์</div>
+                    <textarea id="sub-link" class="copy-textarea" readonly onclick="this.select(); document.execCommand('copy'); alert('คัดลอกลิงก์สำเร็จ!');"></textarea>
+                </div>
+
+                <button class="btn-action" onclick="openHapp()">🚀 เปิดแอป Happ (นำเข้า Clipboard)</button>
+            </div>
+
+            <!-- HITBOX -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🎯 02 จุดเล็งอัจฉริยะ (Phantom Original)</span>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">ความสูงจุดเล็ง</span>
+                    <div class="big-percent" id="val-display">100%</div>
+                </div>
+
+                <div class="hitbox-wrap">
+                    <div class="char-box">
+                        <svg class="char-svg" viewBox="0 0 100 200" preserveAspectRatio="none">
+                            <path d="M 50 10 C 36 10, 32 30, 32 42 C 32 51, 38 56, 38 63 C 20 70, 12 88, 12 116 L 88 116 C 88 88, 80 70, 62 63 C 62 56, 68 51, 68 42 C 68 30, 64 10, 50 10 Z" fill="#181818" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+                        </svg>
+                        <div class="target-box" id="target-dot"></div>
+                    </div>
+
+                    <div class="slider-wrap">
+                        <div class="track-area" id="touch-area">
+                            <div class="track-line">
+                                <div class="track-fill" id="track-fill"></div>
+                                <div class="track-thumb" id="track-thumb"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="labels-side">
+                        <div id="l-head" class="active"><span>หัว</span> <span id="r-head">100%</span></div>
+                        <div id="l-neck"><span>คอ</span> <span id="r-neck">68%</span></div>
+                        <div id="l-shou"><span>ไหล่</span> <span id="r-shou">58%</span></div>
+                        <div id="l-chest"><span>อกบน</span> <span id="r-chest">30%</span></div>
+                        <div id="l-body"><span>หน้าอก</span> <span id="r-body">0%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANE 2 -->
+        <div id="p-features" class="pane">
+            <div class="card">
+                <div class="card-title" style="margin-bottom: 8px;">⚡ เปิดเกม Free Fire</div>
+                <button class="btn-action" onclick="launchGame()">🎮 เข้าสู่เกม Free Fire</button>
+            </div>
+        </div>
+
+        <!-- PANE 3 -->
+        <div id="p-settings" class="pane">
+            <div class="card">
+                <div class="card-title" style="margin-bottom: 8px;">⚙️ สถานะระบบ</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4;">
+                    • Stable Core: สมบูรณ์และเสถียรที่สุด<br>
+                    • พร้อมใช้งานลุยในเกมได้ทันที
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <button class="nav-btn active" onclick="switchTab('home', this)">🏠 หน้าหลัก</button>
+        <button class="nav-btn" onclick="switchTab('features', this)">⚡ ฟีเจอร์</button>
+        <button class="nav-btn" onclick="switchTab('settings', this)">⚙️ ตั้งค่า</button>
+    </nav>
+
+    <script>
+        let currentNet = 'mobile';
+
+        function setNetwork(net) {
+            currentNet = net;
+            document.getElementById('btn-mobile').classList.toggle('active', net === 'mobile');
+            document.getElementById('btn-wifi').classList.toggle('active', net === 'wifi');
+            updateLink();
+        }
+
+        function updateLink() {
+            const key = document.getElementById('user-key').value.trim() || "pldk-9ef1-fdbd";
+            const box = document.getElementById('sub-link');
+            if(box) {
+                box.value = `vless://x-hub-phantom-store-${currentNet}-${key}@127.0.0.1:443?encryption=none&security=none&type=tcp#X_HUB_PHANTOM_STORE`;
+            }
+        }
+
+        function openHapp() {
+            window.location.href = "intent://#Intent;package=com.v2ray.tun;end;";
+        }
+
+        function launchGame() {
+            window.location.href = "intent://#Intent;package=com.dts.freefireth;end;";
+        }
+
+        function initTouch() {
+            const area = document.getElementById('touch-area');
+            if(!area) return;
+
+            const handleMove = (clientY) => {
+                const rect = area.getBoundingClientRect();
+                let offsetY = clientY - rect.top;
+                let height = rect.height;
+                let p = 1 - (offsetY / height);
+                p = Math.max(0, Math.min(1, p)) * 100;
+                setPercent(Math.round(p));
+            };
+
+            area.addEventListener('pointerdown', (e) => {
+                area.setPointerCapture(e.pointerId);
+                handleMove(e.clientY);
+            });
+
+            area.addEventListener('pointermove', (e) => {
+                if (e.buttons > 0 || e.pointerType === 'touch') {
+                    handleMove(e.clientY);
+                }
+            });
+
+            area.addEventListener('pointerup', (e) => {
+                try { area.releasePointerCapture(e.pointerId); } catch(err) {}
+            });
+        }
+
+        function setPercent(val) {
+            document.getElementById('val-display').innerText = val + '%';
+            document.getElementById('r-head').innerText = val + '%';
+            
+            const dot = document.getElementById('target-dot');
+            if(dot) dot.style.top = (10 + ((100 - val) * 0.95)) + 'px';
+
+            const fill = document.getElementById('track-fill');
+            const thumb = document.getElementById('track-thumb');
+            if(fill) fill.style.height = val + '%';
+            if(thumb) thumb.style.top = (100 - val) + '%';
+
+            document.querySelectorAll('.labels-side div').forEach(el => el.classList.remove('active'));
+            if(val >= 80) document.getElementById('l-head').classList.add('active');
+            else if(val >= 50) document.getElementById('l-neck').classList.add('active');
+            else if(val >= 30) document.getElementById('l-shou').classList.add('active');
+            else if(val >= 10) document.getElementById('l-chest').classList.add('active');
+            else document.getElementById('l-body').classList.add('active');
+        }
+
+        function switchTab(id, btn) {
+            document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('p-' + id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setNetwork('mobile');
+            updateLink();
+            initTouch();
+            setPercent(100);
+        });
+    </script>
+</body>
+</html>
